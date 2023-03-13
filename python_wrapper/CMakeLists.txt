@@ -5,5 +5,4 @@ ORB_SLAM3
 g2o
 DBoW2
 )
-MESSAGE("..............."${PROJECT_SOURCE_DIR})
 install(TARGETS orb_slam_pybind DESTINATION .)

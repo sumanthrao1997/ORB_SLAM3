@@ -8,6 +8,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
+#include <iostream>
 #include <string>
 
 #include <opencv2/core/eigen.hpp>
@@ -37,8 +38,7 @@ PYBIND11_MODULE(orb_slam_pybind, m) {
       .def(
           "TrackRGBD",
           [](System &self, py::array_t<uint8_t> &image,
-             py::array_t<uint8_t> &depth, float &timestamp) {
-            const auto _timestamp = static_cast<double>(timestamp);
+             py::array_t<uint8_t> &depth, const double &timestamp) {
             // https://stackoverflow.com/questions/60917800/how-to-get-the-opencv-image-from-python-and-use-it-in-c-in-pybind11
             cv::Mat im(image.shape(0), image.shape(1),
                        CV_MAKE_TYPE(CV_8U, image.shape(2)),
@@ -47,7 +47,10 @@ PYBIND11_MODULE(orb_slam_pybind, m) {
                              CV_MAKE_TYPE(CV_8U, depth.shape(2)),
                              const_cast<uint8_t *>(depth.data()),
                              depth.strides(0));
-            return self.TrackRGBD(im, depthmap, _timestamp).matrix();
+            std::cout << self.GetImageScale()<< "Image Scale";
+            //cv::imshow("depth",depthmap);
+            //cv::waitKey(0);
+            return self.TrackRGBD(im, depthmap, timestamp).matrix();
           },
           "im"_a, "depthmap"_a, "timestamp"_a)
       .def("Shutdown", &System::Shutdown);

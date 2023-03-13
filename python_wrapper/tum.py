@@ -29,9 +29,7 @@ class TUMDataset:
         )
         gt_list = np.loadtxt(fname=self.data_source + "/" + "groundtruth.txt", dtype=str)
         self.gt_poses = self.load_poses(gt_list)
-
-# ******************* look at evaluation later ********************** 
-    # @memoize()
+    
     def load_poses(self, gt_list):
         indices = np.abs(
             (
@@ -54,8 +52,10 @@ class TUMDataset:
         poses[:, :3, :3] = rotations
         poses[:, :3, 3] = xyz
         return poses
-
-    # @memoize()
+    
+    def get_timestamps(self):
+        return self.matches[:,0]
+    
     def associate(self, first_list, second_list, offset=0.0, max_difference=0.2):
         matches = []
         for a in first_list:
@@ -76,7 +76,6 @@ class TUMDataset:
         # pose = self.gt_poses[idx]
         rgb = cv2.imread(f"{self.data_source}/rgb/{rgb_id:.6f}.png")
         depth = cv2.imread(f"{self.data_source}/depth/{depth_id:.6f}.png")
-
         return rgb, depth, float(rgb_id)
 
     def __len__(self):

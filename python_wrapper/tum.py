@@ -74,9 +74,15 @@ class TUMDataset:
     def __getitem__(self, idx):
         rgb_id, depth_id = self.matches[idx]
         # pose = self.gt_poses[idx]
-        rgb = cv2.imread(f"{self.data_source}/rgb/{rgb_id:.6f}.png")
-        depth = cv2.imread(f"{self.data_source}/depth/{depth_id:.6f}.png")
-        return rgb, depth, float(rgb_id)
+        # rgb = cv2.imread(f"{self.data_source}/rgb/{rgb_id:.6f}.png")
+        # depth = cv2.imread(f"{self.data_source}/depth/{depth_id:.6f}.png")
+        
+        rgb_filename = f"{self.data_source}/rgb/{rgb_id:.6f}.png"
+        depth_filename = f"{self.data_source}/depth/{depth_id:.6f}.png"
+        # if depth.ndim == 3:
+            # depth = depth[:,:,0]
+        # print("tumdataloader depth type is: ",depth.dtype)
+        return rgb_filename, depth_filename, float(rgb_id)
 
     def __len__(self):
         return len(self.matches)

@@ -11,14 +11,13 @@ def main(data_source: str, config: str, vocabulary: str):
     dataset = TUMDataset(data_source)
     timestamps = dataset.get_timestamps()
     gt_poses  = dataset.gt_poses
-    # initialize
     execution_times = []
-    slam = orb.System(vocabulary, config, orb.System.eSensor.RGBD, True)
+    slam = orb.System(vocabulary, config, orb.System.eSensor.RGBD, True )
     # print("image scale is ..............",slam.GetImageScale())
     for idx, value in enumerate(dataset):
-        rgb, depth, current_timestamp = value
+        rgb_filename, depth_filename, current_timestamp = value
         start_time = time.time()
-        slam.TrackRGBD(rgb, depth, current_timestamp)
+        slam.TrackRGBD(rgb_filename, depth_filename, current_timestamp)
         end_time = time.time()
         execution_times.append(end_time - start_time)
 

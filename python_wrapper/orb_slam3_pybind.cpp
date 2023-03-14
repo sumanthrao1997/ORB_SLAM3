@@ -8,14 +8,19 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
+#include <cstddef>
+#include <cstdint>
 #include <iostream>
+#include <iterator>
 #include <string>
 
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
 
+//#include "ndarray_converter.h"
 #include "sophus/se3.hpp"
 
 namespace py = pybind11;
@@ -24,6 +29,7 @@ using namespace py::literals;
 namespace ORB_SLAM3 {
 
 PYBIND11_MODULE(orb_slam_pybind, m) {
+  //NDArrayConverter::init_numpy();
   py::class_<System> system(m, "System");
   system
       .def(py::init<const std::string &, const std::string &,
@@ -37,22 +43,45 @@ PYBIND11_MODULE(orb_slam_pybind, m) {
            "filename"_a)
       .def(
           "TrackRGBD",
-          [](System &self, py::array_t<uint8_t> &image,
-             py::array_t<uint8_t> &depth, const double &timestamp) {
-            // https://stackoverflow.com/questions/60917800/how-to-get-the-opencv-image-from-python-and-use-it-in-c-in-pybind11
-            cv::Mat im(image.shape(0), image.shape(1),
-                       CV_MAKE_TYPE(CV_8U, image.shape(2)),
-                       const_cast<uint8_t *>(image.data()), image.strides(0));
-            cv::Mat depthmap(depth.shape(0), depth.shape(1),
-                             CV_MAKE_TYPE(CV_8U, depth.shape(2)),
-                             const_cast<uint8_t *>(depth.data()),
-                             depth.strides(0));
-            std::cout << self.GetImageScale()<< "Image Scale";
-            //cv::imshow("depth",depthmap);
-            //cv::waitKey(0);
-            return self.TrackRGBD(im, depthmap, timestamp).matrix();
+          [](System &self, const std::string& rgb_filename,
+             const std::string& depth_filename, const double& timestamp) {
+          auto im = cv::imread(rgb_filename, cv::IMREAD_UNCHANGED);
+          auto depth = cv::imread(depth_filename, cv::IMREAD_UNCHANGED);
+        
+            std::cout << "depth image shape,type, channels, elemsize is: "<<
+            depth.size()<<std::endl; std::cout << depth.type()<<std::endl;
+            std::cout << depth.channels()<<std::endl;
+            std::cout << depth.elemSize()<<std::endl;
+          //cv::imshow("depth",depth);
+          //cv::waitKey(0);
+          return self.TrackRGBD(im, depth, timestamp).matrix();
           },
-          "im"_a, "depthmap"_a, "timestamp"_a)
+          "im_filename"_a, "depthmap"_a, "timestamp"_a)
+      //.def(
+      //"TrackRGBD",
+      //[](System &self, py::array_t<uint8_t> &image,
+      // py::array_t<uint8_t> &depth, const double &timestamp) {
+      // NDArrayConverter::toMat(PyObject *o, cv::Mat &m)
+      // https://stackoverflow.com/questions/60917800/how-to-get-the-opencv-image-from-python-and-use-it-in-c-in-pybind11
+      // cv::Mat im(image.shape(0), image.shape(1),
+      // CV_MAKE_TYPE(CV_8U, image.shape(2)),
+      // const_cast<uint8_t *>(image.data()), image.strides(0));
+      // cv::Mat depthmap(depth.shape(0),depth.shape(1),CV_8U,
+      // const_cast<uint8_t *>(depth.data()), depth.strides(0));
+
+      // cv::imshow("depth",depthmap);
+      // cv::waitKey(0);
+
+      // std::cout << "color image shape, type, channels, elemsize is: "<<
+      // im.size()<<std::endl; std::cout<< im.type()<<std::endl; std::cout  <<
+      // im.channels()<<std::endl; std::cout << im.elemSize() <<std::endl;
+      // std::cout << "depth image shape,type, channels, elemsize is: "<<
+      // depthmap.size()<<std::endl; std::cout << depthmap.type()<<std::endl;
+      // std::cout << depthmap.channels()<<std::endl;
+      // std::cout << depthmap.elemSize()<<std::endl;
+      ////return self.TrackRGBD(im, depthmap, timestamp).matrix();
+      //},
+      //"im"_a, "depthmap"_a, "timestamp"_a)
       .def("Shutdown", &System::Shutdown);
 
   py::enum_<System::eSensor>(system, "eSensor")

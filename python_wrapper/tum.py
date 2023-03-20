@@ -1,35 +1,28 @@
 #!/usr/bin/env python3
 import cv2
 import numpy as np
-# from build.python_wrapper import orb_slam_pybind as orb
-# import open3d as o3d
 from pyquaternion import Quaternion
-import sys
-
-# sys.path.append("..")
-# from utils.cache import get_cache, memoize
 
 
 class TUMDataset:
     def __init__(self, data_source):
-        # Cache
-        # self.use_cache = True
-        # self.cache = get_cache(directory="cache/tum/")
 
         self.data_source = data_source
 
         self.depth_frames = np.loadtxt(fname=f"{self.data_source}/depth.txt", dtype=str)
         self.rgb_frames = np.loadtxt(fname=f"{self.data_source}/rgb.txt", dtype=str)
-        self.image_scale = 10;
+        self.image_scale = 10
         self.matches = np.array(
             self.associate(
                 self.rgb_frames[:, 0].astype(np.float64).tolist(),
                 self.depth_frames[:, 0].astype(np.float64).tolist(),
             )
         )
-        gt_list = np.loadtxt(fname=self.data_source + "/" + "groundtruth.txt", dtype=str)
+        gt_list = np.loadtxt(
+            fname=self.data_source + "/" + "groundtruth.txt", dtype=str
+        )
         self.gt_poses = self.load_poses(gt_list)
-    
+
     def load_poses(self, gt_list):
         indices = np.abs(
             (
@@ -52,10 +45,10 @@ class TUMDataset:
         poses[:, :3, :3] = rotations
         poses[:, :3, 3] = xyz
         return poses
-    
+
     def get_timestamps(self):
-        return self.matches[:,0]
-    
+        return self.matches[:, 0]
+
     def associate(self, first_list, second_list, offset=0.0, max_difference=0.2):
         matches = []
         for a in first_list:
@@ -65,24 +58,23 @@ class TUMDataset:
                 if abs(a - (b + offset)) < max_difference
             ]
             if len(temp_matches) != 0:
-                diff, first, second = temp_matches[np.argmin(np.array(temp_matches)[:, 0])]
+                diff, first, second = temp_matches[
+                    np.argmin(np.array(temp_matches)[:, 0])
+                ]
                 matches.append((first, second))
         matches.sort()
         return matches
 
-    # @memoize()
     def __getitem__(self, idx):
         rgb_id, depth_id = self.matches[idx]
-        # pose = self.gt_poses[idx]
-        # rgb = cv2.imread(f"{self.data_source}/rgb/{rgb_id:.6f}.png")
-        # depth = cv2.imread(f"{self.data_source}/depth/{depth_id:.6f}.png")
-        
-        rgb_filename = f"{self.data_source}/rgb/{rgb_id:.6f}.png"
-        depth_filename = f"{self.data_source}/depth/{depth_id:.6f}.png"
-        # if depth.ndim == 3:
-            # depth = depth[:,:,0]
-        # print("tumdataloader depth type is: ",depth.dtype)
-        return rgb_filename, depth_filename, float(rgb_id)
+        rgb = cv2.imread(
+            f"{self.data_source}/rgb/{rgb_id:.6f}.png", cv2.IMREAD_UNCHANGED
+        )
+        depth = cv2.imread(
+            f"{self.data_source}/depth/{depth_id:.6f}.png", cv2.IMREAD_UNCHANGED
+        )
+        print(depth.ndim, depth.dtype)
+        return rgb, depth, float(rgb_id)
 
     def __len__(self):
         return len(self.matches)

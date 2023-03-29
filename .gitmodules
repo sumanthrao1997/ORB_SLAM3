@@ -1,3 +1,0 @@
-[submodule "python_wrapper/cvnp"]
-	path = python_wrapper/cvnp
-	url = https://github.com/pthom/cvnp.git

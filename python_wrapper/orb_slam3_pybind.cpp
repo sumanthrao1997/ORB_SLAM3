@@ -21,41 +21,45 @@ using namespace py::literals;
 namespace ORB_SLAM3 {
 
 PYBIND11_MODULE(orb_slam_pybind, m) {
-  py::class_<System> system(m, "System");
+  py::class_<System> system(m, "_System",
+        "This is the low level C++ bindings, all the methods and "
+        "constructor defined within this module (starting with a ``_`` "
+        "should not be used. Please reffer to the python Procesor class to "
+        "check how to use the API");
   system
       .def(py::init<const std::string &, const std::string &,
                     const System::eSensor, bool, const int,
                     const std::string &>(),
            "strVocFile"_a, "strSettingsFile"_a, "sensor"_a,
            "bUseViewer"_a = true, "initFr"_a = 0, "strSequence"_a = "")
-      .def("ActivateLocalizationMode", &System::ActivateLocalizationMode)
-      .def("DeactivateLocalizationMode", &System::DeactivateLocalizationMode)
-      .def("GetImageScale", &System::GetImageScale)
-      .def("MapChanged", &System::MapChanged)
-      .def("Reset", &System::Reset)
-      .def("ResetActiveMap", &System::ResetActiveMap)
+      .def("_ActivateLocalizationMode", &System::ActivateLocalizationMode)
+      .def("_DeactivateLocalizationMode", &System::DeactivateLocalizationMode)
+      .def("_GetImageScale", &System::GetImageScale)
+      .def("_MapChanged", &System::MapChanged)
+      .def("_Reset", &System::Reset)
+      .def("_ResetActiveMap", &System::ResetActiveMap)
       .def(
-          "SaveKeyFrameTrajectoryEuroC",
+          "_SaveKeyFrameTrajectoryEuroC",
           [](System &self, const std::string &filename) {
             self.SaveKeyFrameTrajectoryEuRoC(filename);
           },
           "filename"_a)
       .def(
-          "SaveTrajectoryEuroC",
+          "_SaveTrajectoryEuroC",
           [](System &self, const std::string &filename) {
             self.SaveTrajectoryEuRoC(filename);
           },
           "filename"_a)
-      .def("SaveKeyFrameTrajectoryTUM", &System::SaveKeyFrameTrajectoryTUM,
+      .def("_SaveKeyFrameTrajectoryTUM", &System::SaveKeyFrameTrajectoryTUM,
            "filename"_a)
-      .def("SaveTrajectoryKITTI", &System::SaveTrajectoryKITTI, "filename"_a)
-      .def("SaveTrajectoryTUM", &System::SaveTrajectoryTUM, "filename"_a)
-      .def("Shutdown", &System::Shutdown)
-      .def("isFinished", &System::isFinished)
-      .def("isLost", &System::isLost)
-      .def("isShutDown", &System::isShutDown)
+      .def("_SaveTrajectoryKITTI", &System::SaveTrajectoryKITTI, "filename"_a)
+      .def("_SaveTrajectoryTUM", &System::SaveTrajectoryTUM, "filename"_a)
+      .def("_Shutdown", &System::Shutdown)
+      .def("_isFinished", &System::isFinished)
+      .def("_isLost", &System::isLost)
+      .def("_isShutDown", &System::isShutDown)
       .def(
-          "TrackMonocular",
+          "_TrackMonocular",
           [](System &self, py::array &image, const double timestamp,
              py::array_t<double> &vImuMeas, const std::string &filename) {
             cv::Mat im = py_array_to_mat(image);
@@ -70,7 +74,7 @@ PYBIND11_MODULE(orb_slam_pybind, m) {
           "filename"_a = "")
 
       .def(
-          "TrackRGBD",
+          "_TrackRGBD",
           [](System &self, py::array &image, py::array &depth,
              const double &timestamp, py::array_t<double> vImuMeas,
              const std::string &filename) {
@@ -88,7 +92,7 @@ PYBIND11_MODULE(orb_slam_pybind, m) {
           "vImuMeas"_a = py::array_t<double>(), "filename"_a = "")
 
       .def(
-          "TrackStereo",
+          "_TrackStereo",
           [](System &self, py::array &imLeft, py::array &imRight,
              const double &timestamp, py::array_t<double> vImuMeas,
              const std::string &filename) {

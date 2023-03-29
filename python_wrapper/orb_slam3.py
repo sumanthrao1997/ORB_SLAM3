@@ -6,16 +6,16 @@ class ORB_SLAM3:
     def __init__(self, vocabulary: str, config: str, sensor: str, vis: bool):
 
         self.supported_sensors = {
-            "MONOCULAR": orb.System.eSensor.MONOCULAR,
-            "STEREO": orb.System.eSensor.STEREO,
-            "RGBD": orb.System.eSensor.RGBD,
-            "IMU_MONOCULAR": orb.System.eSensor.IMU_MONOCULAR,
-            "IMU_STEREO": orb.System.eSensor.IMU_STEREO,
-            "IMU_RGBD": orb.System.eSensor.IMU_RGBD,
+            "MONOCULAR": orb._System.eSensor.MONOCULAR,
+            "STEREO": orb._System.eSensor.STEREO,
+            "RGBD": orb._System.eSensor.RGBD,
+            "IMU_MONOCULAR": orb._System.eSensor.IMU_MONOCULAR,
+            "IMU_STEREO": orb._System.eSensor.IMU_STEREO,
+            "IMU_RGBD": orb._System.eSensor.IMU_RGBD,
         }
         eSensor = self.supported_sensors[sensor.upper()]
         # initialise orb slam here
-        self.slam = orb.System(vocabulary, config, eSensor, vis)
+        self.slam = orb._System(vocabulary, config, eSensor, vis)
 
     def TrackRGBD(
         self,
@@ -30,9 +30,9 @@ class ORB_SLAM3:
         assert timestamp is not None
         if vImuMeas is not None:
             assert isinstance(vImuMeas, np.ndarray)
-            return self.slam.TrackRGBD(image, depthmap, timestamp, vImuMeas, filename)
+            return self.slam._TrackRGBD(image, depthmap, timestamp, vImuMeas, filename)
         if vImuMeas is None:
-            return self.slam.TrackRGBD(image, depthmap, timestamp, filename=filename)
+            return self.slam._TrackRGBD(image, depthmap, timestamp, filename=filename)
 
     def TrackMonocular(
         self,
@@ -45,9 +45,9 @@ class ORB_SLAM3:
         assert timestamp is not None
         if vImuMeas is not None:
             assert isinstance(vImuMeas, np.ndarray)
-            return self.slam.TrackMonocular(image, timestamp, vImuMeas, filename)
+            return self.slam._TrackMonocular(image, timestamp, vImuMeas, filename)
         if vImuMeas is None:
-            return self.slam.TrackMonocular(image, timestamp, filename=filename)
+            return self.slam._TrackMonocular(image, timestamp, filename=filename)
 
     def TrackStereo(
         self,
@@ -62,51 +62,53 @@ class ORB_SLAM3:
         assert timestamp is not None
         if vImuMeas is not None:
             assert isinstance(vImuMeas, np.ndarray)
-            return self.slam.TrackStereo(imLeft, imRight, timestamp, vImuMeas, filename)
+            return self.slam._TrackStereo(
+                imLeft, imRight, timestamp, vImuMeas, filename
+            )
         if vImuMeas is None:
-            return self.slam.TrackStereo(imLeft, imRight, timestamp, filename=filename)
+            return self.slam._TrackStereo(imLeft, imRight, timestamp, filename=filename)
 
     def ActivateLocalizationMode(self):
-        self.slam.ActivateLocalizationMode()
+        self.slam._ActivateLocalizationMode()
 
     def DeactivateLocalizationMode(self):
-        self.slam.DeactivateLocalizationMode()
+        self.slam._DeactivateLocalizationMode()
 
     def GetImageScale(self):
-        return self.slam.GetImageScale()
+        return self.slam._GetImageScale()
 
     def MapChanged(self):
-        return self.slam.MapChanged()
+        return self.slam._MapChanged()
 
     def Reset(self):
-        self.slam.Reset()
+        self.slam._Reset()
 
     def ResetActiveMap(self):
-        self.slam.ResetActiveMap()
+        self.slam._ResetActiveMap()
 
     def SaveKeyFrameTrajectoryEuroC(self, filename):
-        self.slam.SaveKeyFrameTrajectoryEuRoC(filename)
+        self.slam._SaveKeyFrameTrajectoryEuRoC(filename)
 
     def SaveTrajectoryEuroC(self, filename):
-        self.slam.SaveTrajectoryEuRoC(filename)
+        self.slam._SaveTrajectoryEuRoC(filename)
 
     def SaveKeyFrameTrajectoryTUM(self, filename):
-        self.slam.SaveKeyFrameTrajectoryTUM(filename)
+        self.slam._SaveKeyFrameTrajectoryTUM(filename)
 
     def SaveTrajectoryKITTI(self, filename):
-        self.slam.SaveTrajectoryKITTI(filename)
+        self.slam._SaveTrajectoryKITTI(filename)
 
     def SaveTrajectoryTUM(self, filename):
-        self.slam.SaveTrajectoryTUM(filename)
+        self.slam._SaveTrajectoryTUM(filename)
 
     def Shutdown(self):
-        self.slam.Shutdown()
+        self.slam._Shutdown()
 
     def isFinished(self):
-        return self.slam.isFinished()
+        return self.slam._isFinished()
 
     def isLost(self):
-        return self.slam.isLost()
+        return self.slam._isLost()
 
     def isShutDown(self):
-        return self.slam.isShutDown()
+        return self.slam._isShutDown()

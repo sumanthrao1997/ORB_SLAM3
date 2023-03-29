@@ -1,12 +1,4 @@
 find_package(pybind11 CONFIG REQUIRED)
-#execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import numpy; print(numpy.get_include())" OUTPUT_VARIABLE NUMPY_INCLUDE OUTPUT_STRIP_TRAILING_WHITESPACE)
-#message(STATUS "NUMPY_INCLUDE: " ${NUMPY_INCLUDE})
-#include_directories(${NUMPY_INCLUDE})
-#pybind11_add_module(orb_slam_pybind "orb_slam3_pybind.cpp" "ndarray_converter.cpp")
-#target_link_libraries(orb_slam_pybind PRIVATE ${OpenCV_LIBS} ORB_SLAM3 g2o DBoW2)
-#target_compile_definitions(orb_slam_pybind PRIVATE)
-
-#add_subdirectory(cvnp)
 pybind11_add_module(orb_slam_pybind MODULE orb_slam3_pybind.cpp) 
 target_link_libraries(orb_slam_pybind PUBLIC ORB_SLAM3 g2o DBoW2)
 install(TARGETS orb_slam_pybind DESTINATION .)

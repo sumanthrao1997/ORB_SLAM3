@@ -1,31 +1,19 @@
+#include "orb_slam3_pybind.h"
+
 #include <System.h>
-#include <bits/stdint-uintn.h>
-#include <opencv2/core/hal/interface.h>
 #include <pybind11/detail/common.h>
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
-#include <pybind11/stl_bind.h>
 
-#include <cstddef>
-#include <cstdint>
-#include <iostream>
-#include <iterator>
-#include <mutex>
 #include <string>
 #include <vector>
 
-#include <opencv2/core/eigen.hpp>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
 
-//#include "ndarray_converter.h"
 #include "ImuTypes.h"
-#include "orb_slam3_pybind.h"
 #include "sophus/se3.hpp"
 
 namespace py = pybind11;
@@ -40,32 +28,59 @@ PYBIND11_MODULE(orb_slam_pybind, m) {
                     const std::string &>(),
            "strVocFile"_a, "strSettingsFile"_a, "sensor"_a,
            "bUseViewer"_a = true, "initFr"_a = 0, "strSequence"_a = "")
+      .def("ActivateLocalizationMode", &System::ActivateLocalizationMode)
+      .def("DeactivateLocalizationMode", &System::DeactivateLocalizationMode)
       .def("GetImageScale", &System::GetImageScale)
-      .def("SaveTrajectoryTUM", &System::SaveTrajectoryTUM, "filename"_a)
+      .def("MapChanged", &System::MapChanged)
+      .def("Reset", &System::Reset)
+      .def("ResetActiveMap", &System::ResetActiveMap)
+      .def(
+          "SaveKeyFrameTrajectoryEuroC",
+          [](System &self, const std::string &filename) {
+            self.SaveKeyFrameTrajectoryEuRoC(filename);
+          },
+          "filename"_a)
+      .def(
+          "SaveTrajectoryEuroC",
+          [](System &self, const std::string &filename) {
+            self.SaveTrajectoryEuRoC(filename);
+          },
+          "filename"_a)
       .def("SaveKeyFrameTrajectoryTUM", &System::SaveKeyFrameTrajectoryTUM,
            "filename"_a)
+      .def("SaveTrajectoryKITTI", &System::SaveTrajectoryKITTI, "filename"_a)
+      .def("SaveTrajectoryTUM", &System::SaveTrajectoryTUM, "filename"_a)
+      .def("Shutdown", &System::Shutdown)
+      .def("isFinished", &System::isFinished)
+      .def("isLost", &System::isLost)
+      .def("isShutDown", &System::isShutDown)
       .def(
-          "TrackRGBD",
-          [](System &self, py::array &image, py::array &depth,
-             const double &timestamp) {
+          "TrackMonocular",
+          [](System &self, py::array &image, const double timestamp,
+             py::array_t<double> &vImuMeas, const std::string &filename) {
             cv::Mat im = py_array_to_mat(image);
-            cv::Mat depthmap = py_array_to_mat(depth);
-            return self.TrackRGBD(im, depthmap, timestamp).matrix();
+            std::vector<IMU::Point> vector_imu{};
+            if (vImuMeas.size() != 0) {
+              vector_imu = py_array_to_vector_imu_points(vImuMeas);
+            }
+            return self.TrackMonocular(im, timestamp, vector_imu, filename)
+                .matrix();
           },
-          "im"_a, "depthmap"_a, "timestamp"_a)
+          "im"_a, "timestamp"_a, "vImuMeas"_a = py::array_t<double>(),
+          "filename"_a = "")
 
       .def(
           "TrackRGBD",
           [](System &self, py::array &image, py::array &depth,
              const double &timestamp, py::array_t<double> vImuMeas,
-             std::string filename) {
+             const std::string &filename) {
+            cv::Mat im = py_array_to_mat(image);
+            cv::Mat depthmap = py_array_to_mat(depth);
             std::vector<IMU::Point> vector_imu{};
-            if (!vImuMeas.is_none()) {
+            if (vImuMeas.size() != 0) {
               vector_imu = py_array_to_vector_imu_points(vImuMeas);
             }
 
-            cv::Mat im = py_array_to_mat(image);
-            cv::Mat depthmap = py_array_to_mat(depth);
             return self.TrackRGBD(im, depthmap, timestamp, vector_imu, filename)
                 .matrix();
           },
@@ -73,20 +88,22 @@ PYBIND11_MODULE(orb_slam_pybind, m) {
           "vImuMeas"_a = py::array_t<double>(), "filename"_a = "")
 
       .def(
-          "TrackRGBD",
-          [](System &self, py::array &image, py::array &depth,
-             const double &timestamp, std::string filename) {
+          "TrackStereo",
+          [](System &self, py::array &imLeft, py::array &imRight,
+             const double &timestamp, py::array_t<double> vImuMeas,
+             const std::string &filename) {
+            cv::Mat imL = py_array_to_mat(imLeft);
+            cv::Mat imR = py_array_to_mat(imRight);
             std::vector<IMU::Point> vector_imu{};
+            if (vImuMeas.size() != 0) {
+              vector_imu = py_array_to_vector_imu_points(vImuMeas);
+            }
 
-            cv::Mat im = py_array_to_mat(image);
-            cv::Mat depthmap = py_array_to_mat(depth);
-
-            return self.TrackRGBD(im, depthmap, timestamp, vector_imu, filename)
+            return self.TrackStereo(imL, imR, timestamp, vector_imu, filename)
                 .matrix();
           },
-          "im"_a, "depthmap"_a, "timestamp"_a, "filename"_a)
-
-      .def("Shutdown", &System::Shutdown);
+          "imLeft"_a, "imRight"_a, "timestamp"_a,
+          "vImuMeas"_a = py::array_t<double>(), "filename"_a = "");
 
   py::enum_<System::eSensor>(system, "eSensor")
       .value("MONOCULAR", System::eSensor::MONOCULAR)

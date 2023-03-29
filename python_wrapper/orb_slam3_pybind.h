@@ -83,7 +83,6 @@ cv::Mat py_array_to_mat(py::array &np_array) {
 
 std::vector<IMU::Point> py_array_to_vector_imu_points(
     py::array_t<double> &array) {
-  // int64_t eigen_vector_size = EigenVector::SizeAtCompileTime;
   // Imu::point size must be 7 (ax, ay, az, vx,vy,vz, t)
   if (array.ndim() != 2 || array.shape(1) != 7) {
     throw py::cast_error();
@@ -91,21 +90,16 @@ std::vector<IMU::Point> py_array_to_vector_imu_points(
   std::vector<IMU::Point> imu_vectors{};
   imu_vectors.reserve(array.shape(0));
   auto array_unchecked = array.unchecked<2>();
-  double acc_x = 0;
-  double acc_y = 0;
-  double acc_z = 0;
-  double ang_vel_x = 0;
-  double ang_vel_y = 0;
-  double ang_vel_z = 0;
-  double timestamp = 0;
   for (auto i = 0; i < array_unchecked.shape(0); ++i) {
-    acc_x, acc_y, acc_z, ang_vel_x, ang_vel_y, ang_vel_z,
-        timestamp = array_unchecked(i, 0);
-    imu_vectors.emplace_back(
-        IMU::Point(static_cast<float>(acc_x), static_cast<float>(acc_y),
-                   static_cast<float>(acc_z), static_cast<float>(ang_vel_x),
-                   static_cast<float>(ang_vel_y), static_cast<float>(ang_vel_z),
-                   timestamp));
+    auto acc_x = static_cast<float>(array_unchecked(i, 0));
+    auto acc_y = static_cast<float>(array_unchecked(i, 1));
+    auto acc_z = static_cast<float>(array_unchecked(i, 2));
+    auto ang_vel_x = static_cast<float>(array_unchecked(i, 3));
+    auto ang_vel_y = static_cast<float>(array_unchecked(i, 4));
+    auto ang_vel_z = static_cast<float>(array_unchecked(i, 5));
+    double timestamp = array_unchecked(i, 6);
+    imu_vectors.emplace_back(IMU::Point(acc_x, acc_y, acc_z, ang_vel_x,
+                                        ang_vel_y, ang_vel_z, timestamp));
   }
   return imu_vectors;
 }

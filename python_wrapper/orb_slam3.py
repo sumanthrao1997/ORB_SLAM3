@@ -99,10 +99,10 @@ class ORB_SLAM3:
         self.slam._ResetActiveMap()
 
     def SaveKeyFrameTrajectoryEuroC(self, filename):
-        self.slam._SaveKeyFrameTrajectoryEuRoC(filename)
+        self.slam._SaveKeyFrameTrajectoryEuroC(filename)
 
     def SaveTrajectoryEuroC(self, filename):
-        self.slam._SaveTrajectoryEuRoC(filename)
+        self.slam._SaveTrajectoryEuroC(filename)
 
     def SaveKeyFrameTrajectoryTUM(self, filename):
         self.slam._SaveKeyFrameTrajectoryTUM(filename)

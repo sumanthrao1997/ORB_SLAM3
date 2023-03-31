@@ -10,7 +10,7 @@ def main(data_source: str, config: str, vocabulary: str, visualize: bool = True)
         rgb, depth, current_timestamp = value
         slam.TrackRGBD(image=rgb, depthmap=depth, timestamp=current_timestamp)
 
-    slam.SaveTrajectoryTUM("bullshit.txt")
+    slam.SaveTrajectoryTUM("tum_trajectory.txt")
     slam.Shutdown()
 
 

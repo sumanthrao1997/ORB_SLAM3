@@ -5,6 +5,15 @@ from python_wrapper import orb_slam_pybind as orb
 class ORB_SLAM3:
     def __init__(self, vocabulary: str, config: str, sensor: str, vis: bool):
 
+        """
+        Initializes Orb Slam 3 pipeline
+        Args:
+            vocabulary: path to vocabulary
+            config: path to config file
+            sensor: sensor type case-insensitive (eg: "monocular", "stereo"...)
+            vis: on/off visualisation
+
+        """
         self.supported_sensors = {
             "MONOCULAR": orb._System.eSensor.MONOCULAR,
             "STEREO": orb._System.eSensor.STEREO,
@@ -23,6 +32,7 @@ class ORB_SLAM3:
         depthmap: np.ndarray,
         timestamp: float,
         vImuMeas: np.ndarray = None,
+        # np.array([acc_x,acc_y,acc_z,ang_vel_x,ang_vel_y,ang_vel_z,timestamp])(nx7)
         filename: str = "",
     ) -> None:
         assert isinstance(image, np.ndarray)
@@ -39,6 +49,7 @@ class ORB_SLAM3:
         image: np.ndarray,
         timestamp: float,
         vImuMeas: np.ndarray = None,
+        # np.array([acc_x,acc_y,acc_z,ang_vel_x,ang_vel_y,ang_vel_z,timestamp])(nx7)
         filename: str = "",
     ) -> None:
         assert isinstance(image, np.ndarray)
@@ -55,6 +66,7 @@ class ORB_SLAM3:
         imRight: np.ndarray,
         timestamp: float,
         vImuMeas: np.ndarray = None,
+        # np.array([acc_x,acc_y,acc_z,ang_vel_x,ang_vel_y,ang_vel_z,timestamp])(nx7)
         filename: str = "",
     ) -> None:
         assert isinstance(imLeft, np.ndarray)

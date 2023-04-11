@@ -1,3 +1,11 @@
+#ORB-SLAM3 pybind(still in development)
+To try: Git clone the repo
+```cd ORB_SLAM3_pybind &&
+   mkdir build &&
+   cd build```
+ ```cmake .. \
+    make -j($nproc)```
+
 # ORB-SLAM3
 
 ### V1.0, December 22th, 2021
